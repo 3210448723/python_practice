@@ -126,7 +126,7 @@ def get_chapter_problem(url):
 					# print(sid)
 
 					# 选项对应的语句
-					s_content = temp[1]
+					s_content = ''.join(temp[1:])
 					print('选项', sid, '：', s_content)
 					writeline(sid + ' ' + s_content + '\n')
 
