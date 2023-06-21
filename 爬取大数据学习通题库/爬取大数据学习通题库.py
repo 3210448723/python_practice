@@ -162,10 +162,12 @@ def get_chapter_problem(url):
 
 				# 获取题目编号pid和题干title
 				temp = problem_brief.xpath('string(./h3[1])').replace(" ", "").split('.')
+				title = problem_brief.xpath('string(./p)')
 				pid = temp[0]
-				title = ''.join(temp[1:])
-				print('第', pid, '题', title)
-				writeline(pid + '. ' + title + '\n')
+				score = temp[1].split(')')[0] + ')'
+				title = temp[1].split(')')[1] == '' and title or temp[1].split(')')[1]
+				print('第', pid, '题', score, title)
+				writeline(pid + '. ' + score + title + '\n')
 
 				# 获取答案，html标签也带上，因为有的答案是表格形式
 				answer = problem_brief.xpath('./div[@class="mark_answer"]/div[@class="mark_answer_key pad0"]/dl['
