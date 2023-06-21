@@ -19,6 +19,8 @@ problem_list = []
 problem = {}
 p_content = []
 select = []
+cookies = {
+	'Cookie': '对应链接的cookie，自己F12查看'}
 
 
 def initwrite():
@@ -32,15 +34,13 @@ def writeline(content):
 
 
 def get_chapter_problem(url):
-	cookies = {
-		'Cookie': '对应链接的cookie，自己F12查看'
-	}
 	# 获取某个章节的题目和答案
 	resp = requests.post(url=url, cookies=cookies, headers=headers)
 	resp = resp.text
 
 	# 输出爬取的网页源代码
 	# print(resp)
+	# return
 	etree_html = etree.HTML(resp)
 	# 题目
 	xpath_all_problem = '//*[@class="mark_table padTop60 ans-cc"]/div'
@@ -113,7 +113,7 @@ def get_chapter_problem(url):
 				# 获取题目编号pid和题干title
 				temp = problem_multi_select.xpath('string(./h3)').replace(" ", "").split('.')
 				pid = temp[0]
-				title = temp[1]
+				title = ''.join(temp[1:])
 				print('第', pid, '题', title)
 				writeline(pid + '. ' + title + '\n')
 
@@ -161,10 +161,11 @@ def get_chapter_problem(url):
 				select = []
 
 				# 获取题目编号pid和题干title
-				temp = problem_brief.xpath('string(./h3[1])').replace(" ", "").split('.')
-				title = problem_brief.xpath('string(./p)')
+				temp = problem_brief.xpath('string(./h3[1])').replace(" ", "").split('.')  # 有的地方的简答题题干爬取不到，如第10章的12和15题
+				title = problem_brief.xpath('string(./p)')  # 虽然不知道为什么但是这样可以跑...
 				pid = temp[0]
 				score = temp[1].split(')')[0] + ')'
+				# 应对题干爬取失效的情况
 				title = temp[1].split(')')[1] == '' and title or temp[1].split(')')[1]
 				print('第', pid, '题', score, title)
 				writeline(pid + '. ' + score + title + '\n')
@@ -201,7 +202,7 @@ def get_chapter_problem(url):
 			writeline('## ' + type + '\n')
 
 			# continue
-			# 遍历简答题列表
+			# 遍历填空题列表
 			for problem_blank in i.xpath('./div'):
 				# 数据结构初始化
 				problem = {}
@@ -238,8 +239,6 @@ def get_chapter_problem(url):
 
 
 if __name__ == '__main__':
-	cookies = {
-		'Cookie': '对应链接的cookie，自己F12查看'}
 	url = 'https://mooc1.chaoxing.com/mooc2/work/list?courseId=234766790&classId=77297858&cpi=156529108&ut=s&enc=27f8dfcdcda0b97e1d928bfc6e13fa57'
 	resp = requests.get(url=url, cookies=cookies, headers=headers)
 	resp = resp.text
@@ -258,5 +257,6 @@ if __name__ == '__main__':
 		print(chapter_name, chapter_url)
 		writeline('# [' + chapter_name + '](' + chapter_url + ')\n')
 		get_chapter_problem(chapter_url)
+		# break
 
 # 将题库写入md中
