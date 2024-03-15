@@ -42,6 +42,10 @@
     let observer;
     // 存储目标div元素
     let targetDiv;
+    // 存储开始监控的时间
+    let startTime = null;
+    // 存储导出文件的时间
+    let endTime = null;
 
     // 这里的几个按钮位置很混乱，仍然需要重新排列
     // 创建输入框用于输入XPath
@@ -110,6 +114,9 @@
                 return;
             }
 
+            // 获取当前时间
+            startTime = new Date();
+
             // 保存当前div的内容
             saveCurrentDivContent(targetDiv);
 
@@ -157,13 +164,42 @@
             alert('当前没有内容可以导出。');
             return;
         }
-        const content = divContent.join('\n');
-        const blob = new Blob([content], { type: 'text/plain' });
+
+        let startTime2 = startTime.getFullYear() + '-' + (startTime.getMonth() + 1).toString().padStart(2, '0') + '-' + startTime.getDate().toString().padStart(2, '0') + ' ' + startTime.getHours().toString().padStart(2, '0') + ':' + startTime.getMinutes().toString().padStart(2, '0') + ':' + startTime.getSeconds().toString().padStart(2, '0');
+
+        endTime = new Date();
+        let endTime2 = endTime.getFullYear() + '-' + (endTime.getMonth() + 1).toString().padStart(2, '0') + '-' + endTime.getDate().toString().padStart(2, '0') + ' ' + endTime.getHours().toString().padStart(2, '0') + ':' + endTime.getMinutes().toString().padStart(2, '0') + ':' + endTime.getSeconds().toString().padStart(2, '0');
+
+        // 获取当前页面的URL
+        const currentUrl = window.location.href;
+
+        // 创建包含元数据的HTML字符串
+        const metadataHtml = `
+            <div style="background-color: #f0f0f0; padding: 10px; margin-top: 30px; border: 1px solid #ccc; font-weight: bold; text-align: center;">
+                <p>开始导出时间: ${startTime2}</p>
+                <p>导出结束时间: ${endTime2}</p>
+                <p>保存网址: ${currentUrl}</p>
+                <p>声明代码来源: <a href="https://blog.csdn.net/qq_33843237/article/details/136719243" target="_blank">CSDN博客</a></p>
+                <p>其他信息: 此文档由油猴脚本导出，记录了特定div元素的内容变化。</p>
+                <hr style="border: 0; height: 2px; background-color: #333; margin-top: 10px;" />
+            </div>
+        `;
+
+        // 将元数据HTML和div内容合并
+        const content = metadataHtml + divContent.join('\n');
+
+        // 创建Blob对象
+        const blob = new Blob([content], { type: 'text/html' });
+
+        // 创建下载链接
         const url = URL.createObjectURL(blob);
         const link = document.createElement('a');
         link.href = url;
         link.download = 'div_content.html';
         link.click();
+
+        // 释放URL对象
+        URL.revokeObjectURL(url);
     }
 
     function viewDivContent() {
