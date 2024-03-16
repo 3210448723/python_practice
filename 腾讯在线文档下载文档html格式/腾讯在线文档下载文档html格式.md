@@ -195,7 +195,7 @@
         const url = URL.createObjectURL(blob);
         const link = document.createElement('a');
         link.href = url;
-        link.download = 'div_content.html';
+        link.download = document.title+'.html';
         link.click();
 
         // 释放URL对象
