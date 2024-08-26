@@ -2,7 +2,7 @@
 // @name         CSUCAAutoLogin
 // @namespace    http://tampermonkey.net/
 // @version      1.0
-// @description  ×Ô¶¯µÇÂ¼¡°ÖĞÄÏ´óÑ§Í³Ò»Éí·İÈÏÖ¤Æ½Ì¨¡±ÓÍºï½Å±¾
+// @description  è‡ªåŠ¨ç™»å½•â€œä¸­å—å¤§å­¦ç»Ÿä¸€èº«ä»½è®¤è¯å¹³å°â€æ²¹çŒ´è„šæœ¬
 // @author       YJM
 // @match        https://ca.csu.edu.cn/authserver/login*
 // @grant        none
@@ -18,21 +18,21 @@
         var rememberMeCheckbox = document.evaluate('//*[@id="rememberMe"]', document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
 
         if (usernameInput) {
-            // ÇëÊäÈëÄãµÄÑ§ºÅ
-            usernameInput.value = '244712254';
+            // è¯·è¾“å…¥ä½ çš„å­¦å·
+            usernameInput.value = 'xxx';
         }
 
         if (passwordInput) {
-            // ÇëÊäÈëÄãµÄÃÜÂë
-            passwordInput.value = 'zhaoyjm2002114*';
+            // è¯·è¾“å…¥ä½ çš„å¯†ç 
+            passwordInput.value = 'xxx';
         }
 
         if (rememberMeCheckbox) {
-            // ¹´Ñ¡7ÌìÃâµÇÂ¼
+            // å‹¾é€‰7å¤©å…ç™»å½•
             rememberMeCheckbox.checked = true;
         }
 
-        // µã»÷µÇÂ¼°´Å¥
+        // ç‚¹å‡»ç™»å½•æŒ‰é’®
         var xpath = '//*[@id="login_submit"]';
         var matchingElement = document.evaluate(xpath, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
         if (matchingElement) {
