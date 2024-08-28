@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         CSUCAAutoLogin
 // @namespace    http://tampermonkey.net/
-// @version      2.5
+// @version      3.0
 // @description  自动登录“中南大学统一身份认证平台”及使用该平台鉴权的校内网页的油猴脚本
 // @author       YJM
 // @match        *://ca.csu.edu.cn/authserver/login*
@@ -21,37 +21,48 @@
 
 // @match        *://libzw.csu.edu.cn/home/web/f_second
 // @match        *://libzw.csu.edu.cn/home/web/f_second/
+
+// @match        *://pan.csu.edu.cn/*
 // @grant        none
 // ==/UserScript==
 
 (function () {
     'use strict';
+    var username = 'xxx';
+    var password = 'xxx*';
+
     // 如果是统一身份认证平台
     var ca = function () {
-        // Fill the username and password
-        let usernameInput = document.evaluate('//*[@id="username"]', document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
-        let passwordInput = document.evaluate('//*[@id="password"]', document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
-        let rememberMeCheckbox = document.evaluate('//*[@id="rememberMe"]', document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
-
-        if (usernameInput) {
-            // 请输入你的学号
-            usernameInput.value = 'xxx';
-        }
-
-        if (passwordInput) {
-            // 请输入你的密码
-            passwordInput.value = 'xxx';
-        }
-
-        if (rememberMeCheckbox) {
-            // 勾选7天免登录
-            rememberMeCheckbox.checked = true;
-        }
-
         // 点击登录按钮
         let xpath = '//*[@id="login_submit"]';
         let matchingElement = document.evaluate(xpath, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
         if (matchingElement) {
+            // Fill the username and password
+            let usernameInput = document.evaluate('//*[@id="username"]', document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
+            let passwordInput = document.evaluate('//*[@id="password"]', document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
+            let rememberMeCheckbox = document.evaluate('//*[@id="rememberMe"]', document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
+
+            if (usernameInput) {
+                // 请输入你的学号
+                usernameInput.value = username;
+            } else {
+                console.error('脚本未找到用户名输入框！')
+            }
+
+            if (passwordInput) {
+                // 请输入你的密码
+                passwordInput.value = password;
+            } else {
+                console.error('脚本未找到密码输入框！')
+            }
+
+            if (rememberMeCheckbox) {
+                // 勾选7天免登录
+                rememberMeCheckbox.checked = true;
+            } else {
+                console.error('脚本未找到记住我复选框！')
+            }
+
             matchingElement.click();
         } else {
             console.error('脚本未找到登录按钮！')
@@ -103,7 +114,7 @@
         let inner_text = '系统登录';
         let xpath = '//*[@id="app"]/div[1]/div[2]/div[1]/div[1]/div/div[3]/div';
         let matchingElement = document.evaluate(xpath, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
-        if (matchingElement && matchingElement.innerText === inner_text) {
+        if (matchingElement && matchingElement.innerText.indexOf(inner_text) !== -1) {
             matchingElement.click();
         } else {
             console.error('脚本未找到系统登录按钮！')
@@ -141,6 +152,41 @@
             console.error('脚本未找到登录按钮！')
         }
     };
+    // 如果是云盘页面
+    var pan = function (xpath) {
+        // 点击登录按钮
+        // let xpath = '//*[@id="index-login"]/div/div[2]/div[2]/div[1]/form/div[3]/button';
+        let matchingElement = document.evaluate(xpath, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
+        if (matchingElement) {
+            // Fill the username and password
+            let usernameInput = document.evaluate('//*[@id="index-login"]/div/div[2]/div[2]/div[1]/form/div[1]/input', document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
+            let passwordInput = document.evaluate('//*[@id="index-login"]/div/div[2]/div[2]/div[1]/form/div[2]/input', document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
+
+            if (usernameInput) {
+                // 请输入你的学号
+                usernameInput.value = username;
+                // 触发input事件
+                let event = new Event('input', {bubbles: true});
+                usernameInput.dispatchEvent(event);
+            } else {
+                console.error('脚本未找到用户名输入框！')
+            }
+
+            if (passwordInput) {
+                // 请输入你的密码
+                passwordInput.value = password;
+                // 触发input事件
+                let event = new Event('input', {bubbles: true});
+                passwordInput.dispatchEvent(event);
+            } else {
+                console.error('脚本未找到密码输入框！')
+            }
+
+            matchingElement.click();
+        } else {
+            console.error('脚本未找到登录按钮！')
+        }
+    };
 
     if (window.location.href.indexOf('ca.csu.edu.cn/authserver/login') !== -1) {
         window.addEventListener('load', ca);
@@ -150,12 +196,37 @@
         window.addEventListener('load', libdb);
     } else if (window.location.href.indexOf('ehall.csu.edu.cn') !== -1) {
         window.addEventListener('load', ehall);
-    } else if (window.location.href.indexOf('award.csu.edu.cn') !== -1 && (window.location.href.indexOf('#/login') !== -1 || window.location.href.indexOf('#/login/') !== -1)) {
+    } else if (window.location.href.indexOf('award.csu.edu.cn') !== -1
+        // && window.location.href.indexOf('/#/login') !== -1
+        && window.location.href.indexOf('/#/dashboard') === -1
+    ) {
         window.addEventListener('load', award);
     } else if (window.location.href.indexOf('jf.csu.edu.cn') !== -1) {
         window.addEventListener('load', zf);
     } else if (window.location.href.indexOf('libzw.csu.edu.cn') !== -1) {
         window.addEventListener('load', libzw);
+    } else if (window.location.href.indexOf('pan.csu.edu.cn') !== -1 && window.location.href.indexOf('/#') !== -1) {
+        window.addEventListener('load', function () {
+            // 创建一个 MutationObserver 实例
+            const observer = new MutationObserver(function (mutations, observer) {
+                // 检查指定的登录按钮是否存在
+                let xpath = '//*[@id="index-login"]/div/div[2]/div[2]/div[1]/form/div[3]/button';
+                let matchingElement = document.evaluate(xpath, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
+
+                if (matchingElement) {
+                    // 当登录按钮出现时执行 pan 函数
+                    pan(xpath);
+                    // 停止观察
+                    observer.disconnect();
+                }
+            });
+
+            // 监听整个文档的 DOM 变化
+            observer.observe(document, {
+                childList: true,
+                subtree: true
+            });
+        });
     } else {
         console.error('未知页面')
     }
