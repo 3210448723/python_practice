@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         CSUCAAutoLogin
 // @namespace    http://tampermonkey.net/
-// @version      3.0
+// @version      2.6
 // @description  自动登录“中南大学统一身份认证平台”及使用该平台鉴权的校内网页的油猴脚本
 // @author       YJM
 // @match        *://ca.csu.edu.cn/authserver/login*
@@ -23,6 +23,9 @@
 // @match        *://libzw.csu.edu.cn/home/web/f_second/
 
 // @match        *://pan.csu.edu.cn/*
+
+// @match        *://gms.csu.edu.cn/stu/logon
+// @match        *://gms.csu.edu.cn/stu/logon/
 // @grant        none
 // ==/UserScript==
 
@@ -188,6 +191,27 @@
         }
     };
 
+    var stu_gms = function () {
+        let login_button = '//*[@id="loginIt"]';
+        let matchingElement = document.evaluate(login_button, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
+        if (matchingElement) {
+            let username_xpath = '//*[@id="username"]';
+            let usernameInput = document.evaluate(username_xpath, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
+            if (usernameInput) {
+                usernameInput.value = username;
+            }
+
+            let password_xpath = '//*[@id="password"]';
+            let passwordInput = document.evaluate(password_xpath, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
+            if (passwordInput) {
+                passwordInput.value = password;
+            }
+
+            // 只能手动输入验证码
+            // matchingElement.click();
+        }
+    }
+
     if (window.location.href.indexOf('ca.csu.edu.cn/authserver/login') !== -1) {
         window.addEventListener('load', ca);
     } else if (window.location.href.indexOf('mail.csu.edu.cn') !== -1) {
@@ -227,6 +251,8 @@
                 subtree: true
             });
         });
+    } else if (window.location.href.indexOf('gms.csu.edu.cn/stu/logon') !== -1) {
+        window.addEventListener('load', stu_gms);
     } else {
         console.error('未知页面')
     }
